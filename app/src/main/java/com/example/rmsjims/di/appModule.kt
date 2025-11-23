@@ -44,15 +44,10 @@ val appModule = module {
 
     single { SessionManager(get()) }
 
-    // API implementation
-//    single<InventoryApiService> { InventoryImageApi(get()) }
-    single<ItemCategoriesApiService> { ItemCategoriesApi(get()) }
-    single<ItemsApiService> { ItemsApi(get()) }
-    single<BranchesApiService> { BranchesApi(get()) }
-    single<DepartmentApiService> { DepartmentApi(get()) }
-    single<FacilitesApiService> { FacilitiesApi(get()) }
-    single<ItemImagesApiService> { ItemImagesApi(get()) }
-    single<ItemSubCategoriesApiService> { ItemSubCategoriesApi(get()) }
+    // API implementations are provided conditionally:
+    // - If Supabase is configured: real implementations from SupabaseModule
+    // - If Supabase is not configured: fallback implementations from FallbackApiModule
+    // Note: API implementations are NOT defined here to avoid dependency conflicts
 
     single { BranchRepository (get()) }
     single { ItemCategoriesRepository(get()) }

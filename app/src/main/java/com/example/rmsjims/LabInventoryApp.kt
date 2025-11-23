@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import com.example.rmsjims.util.config
 import com.example.rmsjims.di.appModule
 import com.example.rmsjims.di.supabaseModule
+import com.example.rmsjims.di.fallbackApiModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -38,8 +39,8 @@ class RMSJimsApp : Application() {
                     if (isSupabaseConfigured) {
                         supabaseModule(supabaseUrl, supabaseKey)
                     } else {
-                        Log.w("RMSJimsApp", "Supabase not configured - skipping Supabase module initialization")
-                        module { } // Empty module as fallback
+                        Log.w("RMSJimsApp", "Supabase not configured - using fallback API implementations")
+                        fallbackApiModule
                     },
                     appModule
                 )

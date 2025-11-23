@@ -6,6 +6,20 @@ package com.example.rmsjims.di
 //module: part of Koin DSL to define dependencies.
 
 import android.util.Log
+import com.example.rmsjims.data.remote.apiservice.BranchesApiService
+import com.example.rmsjims.data.remote.apiservice.ItemCategoriesApiService
+import com.example.rmsjims.data.remote.apiservice.DepartmentApiService
+import com.example.rmsjims.data.remote.apiservice.ItemsApiService
+import com.example.rmsjims.data.remote.apiservice.FacilitesApiService
+import com.example.rmsjims.data.remote.apiservice.ItemImagesApiService
+import com.example.rmsjims.data.remote.apiservice.ItemSubCategoriesApiService
+import com.example.rmsjims.data.remote.api.BranchesApi
+import com.example.rmsjims.data.remote.api.ItemCategoriesApi
+import com.example.rmsjims.data.remote.api.DepartmentApi
+import com.example.rmsjims.data.remote.api.FacilitiesApi
+import com.example.rmsjims.data.remote.api.ItemImagesApi
+import com.example.rmsjims.data.remote.api.ItemSubCategoriesApi
+import com.example.rmsjims.data.remote.api.ItemsApi
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
@@ -37,4 +51,13 @@ fun supabaseModule(
             throw e
         }
     }
+    
+    // Provide real API implementations when Supabase is configured
+    single<ItemCategoriesApiService> { ItemCategoriesApi(get()) }
+    single<ItemsApiService> { ItemsApi(get()) }
+    single<BranchesApiService> { BranchesApi(get()) }
+    single<DepartmentApiService> { DepartmentApi(get()) }
+    single<FacilitesApiService> { FacilitiesApi(get()) }
+    single<ItemImagesApiService> { ItemImagesApi(get()) }
+    single<ItemSubCategoriesApiService> { ItemSubCategoriesApi(get()) }
 }
