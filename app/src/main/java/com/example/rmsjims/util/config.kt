@@ -28,4 +28,30 @@ object config {
                 else -> return key
             }
         }
+    
+    // Fallback methods that return empty strings instead of throwing errors
+    val SUPABASE_URL_OR_EMPTY: String
+        get() {
+            val url = BuildConfig.SUPABASE_URL
+            return when {
+                url.isBlank() -> ""
+                url.contains("YOUR_SUPABASE", ignoreCase = true) -> ""
+                !url.startsWith("https://") -> ""
+                else -> url
+            }
+        }
+
+    val SUPABASE_KEY_OR_EMPTY: String
+        get() {
+            val key = BuildConfig.SUPABASE_KEY
+            return when {
+                key.isBlank() -> ""
+                key.contains("YOUR_SUPABASE", ignoreCase = true) -> ""
+                !key.startsWith("eyJ") -> ""
+                else -> key
+            }
+        }
+    
+    val isSupabaseConfigured: Boolean
+        get() = SUPABASE_URL_OR_EMPTY.isNotBlank() && SUPABASE_KEY_OR_EMPTY.isNotBlank()
 }

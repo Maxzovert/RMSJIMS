@@ -12,6 +12,7 @@ import com.example.rmsjims.di.appModule
 import com.example.rmsjims.di.supabaseModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 //Application - base class for maintaining global application state in Android. - acts as the enry point for the app
 class RMSJimsApp : Application() {
@@ -22,17 +23,24 @@ class RMSJimsApp : Application() {
         Log.d("RMSJimsApp", "Application onCreate() called")
         
         try {
-            val supabaseUrl = config.SUPABASE_URL
-            val supabaseKey = config.SUPABASE_KEY
-            Log.d("RMSJimsApp", "Supabase URL loaded: ${if (supabaseUrl.isNotBlank()) "${supabaseUrl.take(20)}..." else "EMPTY"}")
-            Log.d("RMSJimsApp", "Supabase Key loaded: ${if (supabaseKey.isNotBlank()) "${supabaseKey.take(20)}..." else "EMPTY"}")
+            // Use fallback methods to allow app to start without Supabase
+            val supabaseUrl = config.SUPABASE_URL_OR_EMPTY
+            val supabaseKey = config.SUPABASE_KEY_OR_EMPTY
+            val isSupabaseConfigured = config.isSupabaseConfigured
+            
+            Log.d("RMSJimsApp", "Supabase URL loaded: ${if (supabaseUrl.isNotBlank()) "${supabaseUrl.take(20)}..." else "EMPTY (fallback mode)"}")
+            Log.d("RMSJimsApp", "Supabase Key loaded: ${if (supabaseKey.isNotBlank()) "${supabaseKey.take(20)}..." else "EMPTY (fallback mode)"}")
+            Log.d("RMSJimsApp", "Supabase configured: $isSupabaseConfigured")
             
             startKoin {
                 androidContext(this@RMSJimsApp)        // Supplies the app-level context for DI —
                 modules(    //Registers your DI modules
-                    supabaseModule(
-                    supabaseUrl,
-                    supabaseKey),
+                    if (isSupabaseConfigured) {
+                        supabaseModule(supabaseUrl, supabaseKey)
+                    } else {
+                        Log.w("RMSJimsApp", "Supabase not configured - skipping Supabase module initialization")
+                        module { } // Empty module as fallback
+                    },
                     appModule
                 )
             }
