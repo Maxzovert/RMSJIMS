@@ -162,7 +162,8 @@ fun MaintenanceApprovalScreen(
         topBar = {
             CustomTopBar(
                 title = "Maintenance Approval",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

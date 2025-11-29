@@ -3,7 +3,6 @@ package com.example.rmsjims.ui.screens.admin
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -44,8 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,12 +56,10 @@ import com.example.rmsjims.ui.components.AppNavIcon
 import com.example.rmsjims.ui.components.AppSearchBar
 import com.example.rmsjims.ui.components.CustomLabel
 import com.example.rmsjims.ui.components.CustomNavigationBar
-import com.example.rmsjims.ui.components.AppLogoImage
 import com.example.rmsjims.ui.theme.onSurfaceColor
 import com.example.rmsjims.ui.theme.onSurfaceVariant
 import com.example.rmsjims.ui.theme.primaryColor
 import com.example.rmsjims.ui.theme.whiteColor
-import com.example.rmsjims.ui.theme.errorColor
 import com.example.rmsjims.ui.theme.headerColor
 import com.example.rmsjims.util.ResponsiveLayout
 import com.example.rmsjims.util.pxToDp
@@ -239,12 +233,13 @@ fun AdminDashboardTopBar(
                 modifier = Modifier.weight(1f)
             )
             
-            // Notification Icon
+            // Settings Icon
             AppCircularIcon(
-                painter = painterResource(R.drawable.ic_mail), // Using available icon, replace with notification icon if available
-                iconDescription = "Notifications",
+                painter = painterResource(R.drawable.ic_settings),
+                iconDescription = "Settings",
                 onClick = onNotificationClick,
-                tint = onSurfaceColor
+                tint = onSurfaceColor,
+                modifier = Modifier,
             )
         }
         

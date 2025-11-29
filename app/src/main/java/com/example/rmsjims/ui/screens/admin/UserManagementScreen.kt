@@ -172,7 +172,8 @@ fun UserManagementScreen(
         topBar = {
             CustomTopBar(
                 title = "User Management",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

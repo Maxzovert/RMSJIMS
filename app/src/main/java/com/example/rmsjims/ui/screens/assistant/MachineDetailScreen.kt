@@ -118,7 +118,8 @@ fun MachineDetailScreen(
                 title = machine.name,
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
             )
         },
         containerColor = whiteColor

@@ -65,7 +65,8 @@ fun RoleOverviewScreen(
         topBar = {
             CustomTopBar(
                 title = "Choose Your Role",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         containerColor = whiteColor

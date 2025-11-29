@@ -241,12 +241,12 @@ fun LoginScreen(
         ) {
             SocialLoginOption(
                 label = "Sign in with Google",
-                iconRes = R.drawable.ic_vector,
+                iconRes = R.drawable.ic_google,
                 modifier = Modifier.weight(1f)
             )
             SocialLoginOption(
                 label = "Sign in with GitHub",
-                iconRes = R.drawable.ic_storage,
+                iconRes = R.drawable.ic_github,
                 modifier = Modifier.weight(1f)
             )
         }

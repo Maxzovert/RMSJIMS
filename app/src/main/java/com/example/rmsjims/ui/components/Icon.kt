@@ -27,15 +27,16 @@ import com.example.rmsjims.util.ResponsiveLayout
 
 @Composable
 fun AppCircularIcon(
-    painter : Painter = painterResource(R.drawable.ic_reset),
-    iconDescription : String = "Circular Icon",
-    boxSize : Dp = ResponsiveLayout.getResponsiveSize(46.dp, 52.dp, 60.dp),
-    boxShape : Shape = CircleShape,
-    boxColor : Color = searchBarColor,
-    iconPadding : Dp = ResponsiveLayout.getResponsivePadding(11.dp, 13.dp, 15.dp),
-    iconSize : Dp = ResponsiveLayout.getResponsiveSize(22.dp, 24.dp, 28.dp),
-    onClick : () -> Unit = {},
-    tint : Color = labelColor
+    painter: Painter = painterResource(R.drawable.ic_reset),
+    iconDescription: String = "Circular Icon",
+    boxSize: Dp = ResponsiveLayout.getResponsiveSize(46.dp, 52.dp, 60.dp),
+    boxShape: Shape = CircleShape,
+    boxColor: Color = searchBarColor,
+    iconPadding: Dp = ResponsiveLayout.getResponsivePadding(11.dp, 13.dp, 15.dp),
+    iconSize: Dp = ResponsiveLayout.getResponsiveSize(22.dp, 24.dp, 28.dp),
+    onClick: () -> Unit = {},
+    tint: Color = labelColor,
+    modifier: Modifier = Modifier
 ){
     Box(
         contentAlignment = Alignment.Center,

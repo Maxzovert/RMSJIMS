@@ -125,7 +125,8 @@ fun UserDetailScreen(
             Box(modifier = Modifier.fillMaxWidth()) {
                 CustomTopBar(
                     title = user.name,
-                    onNavigationClick = { navController.popBackStack() }
+                    onNavigationClick = { navController.popBackStack() },
+                    navController = navController
                 )
                 Box(
                     modifier = Modifier

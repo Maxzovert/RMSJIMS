@@ -32,7 +32,8 @@ fun AboutAppScreen(
         topBar = {
             CustomTopBar(
                 title = "About RMSJIMS",
-                onNavigationClick = null
+                onNavigationClick = null,
+                navController = navController
             )
         },
         containerColor = whiteColor

@@ -88,7 +88,8 @@ fun RaiseTicketScreen(
                 title = "Report an Issue",
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
             )
         },
         containerColor = whiteColor,

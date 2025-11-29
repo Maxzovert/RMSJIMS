@@ -90,7 +90,8 @@ fun UsageApprovalScreen(
         topBar = {
             CustomTopBar(
                 title = "Usage Approval",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

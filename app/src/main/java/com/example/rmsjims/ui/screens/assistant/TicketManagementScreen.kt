@@ -90,7 +90,8 @@ fun TicketManagementScreen(
         topBar = {
             CustomTopBar(
                 title = "Ticket Management",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

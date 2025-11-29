@@ -74,7 +74,8 @@ fun AssistantScreen(
         topBar = {
             CustomTopBar(
                 title = "Lab Assistant",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

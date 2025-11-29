@@ -119,7 +119,8 @@ fun MaintenanceDetailScreen(
                 title = request.equipmentName,
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
             )
         },
         containerColor = whiteColor

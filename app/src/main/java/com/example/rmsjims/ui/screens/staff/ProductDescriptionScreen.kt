@@ -73,7 +73,6 @@ import com.example.rmsjims.ui.components.CustomTopBar
 import com.example.rmsjims.ui.theme.onSurfaceVariant
 import com.example.rmsjims.ui.theme.circularBoxColor
 import com.example.rmsjims.ui.theme.onSurfaceColor
-import com.example.rmsjims.ui.theme.editCardTextColor
 import com.example.rmsjims.ui.theme.primaryColor
 import com.example.rmsjims.ui.theme.errorColor
 import com.example.rmsjims.ui.theme.whiteColor
@@ -217,7 +216,8 @@ fun ProdDescScreen(
                     } else {
                         navController.popBackStack()
                     }
-                }
+                },
+                navController = navController
             )
         },
         bottomBar = {
@@ -774,10 +774,9 @@ fun InChargeRow(
                 AppCircularIcon(
                     painter = painterResource(iconRes),
                     boxSize = pxToDp(28),
+                    boxColor = circularBoxColor,
                     iconPadding = pxToDp(4),
                     iconSize = adjustedIconSize,
-                    tint = primaryColor,
-                    boxColor = circularBoxColor,
                     onClick = {
                         when (iconRes) {
                             R.drawable.ic_mail -> {
@@ -786,7 +785,7 @@ fun InChargeRow(
                                     val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val clip = ClipData.newPlainText("Email", emailAddress)
                                     clipboard.setPrimaryClip(clip)
-                                    
+
                                     // Open mail app with email in 'To' field
                                     val intent = Intent(Intent.ACTION_SENDTO).apply {
                                         data = Uri.parse("mailto:$emailAddress")
@@ -800,7 +799,7 @@ fun InChargeRow(
                                     val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val clip = ClipData.newPlainText("Phone", phoneNumber)
                                     clipboard.setPrimaryClip(clip)
-                                    
+
                                     // Open dialer app with number on keypad
                                     val intent = Intent(Intent.ACTION_DIAL).apply {
                                         data = Uri.parse("tel:$phoneNumber")
@@ -809,7 +808,8 @@ fun InChargeRow(
                                 }
                             }
                         }
-                    }
+                    },
+                    tint = primaryColor,
                 )
             }
         }

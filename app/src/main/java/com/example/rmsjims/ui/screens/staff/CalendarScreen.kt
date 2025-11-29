@@ -95,7 +95,8 @@ fun CalendarScreen(
                 title = "Booking Dates",
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
             )
         },
         bottomBar = {

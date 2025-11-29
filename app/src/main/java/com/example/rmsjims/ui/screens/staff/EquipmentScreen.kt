@@ -31,14 +31,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -81,7 +78,6 @@ import com.example.rmsjims.data.schema.Items
 import com.example.rmsjims.viewmodel.FacilitiesViewModel
 import com.example.rmsjims.viewmodel.FilterSortViewModel
 import com.example.rmsjims.viewmodel.ItemsViewModel
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import org.koin.androidx.compose.koinViewModel
 
@@ -110,7 +106,8 @@ fun EquipmentScreen(
                 title = categoryName,
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
            )
         },
         containerColor = whiteColor,
@@ -166,7 +163,7 @@ fun EquipmentScreen(
                 Spacer(modifier = Modifier.width(ResponsiveLayout.getCardSpacing()))
 
                 AppCircularIcon(
-                    onClick = { filterSortViewModel.showSheet() }
+                    onClick = { filterSortViewModel.showSheet() },
                 )
             }
 

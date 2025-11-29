@@ -65,7 +65,8 @@ fun RoleSelectionScreen(
         topBar = {
             CustomTopBar(
                 title = "Select Role",
-                onNavigationClick = null
+                onNavigationClick = null,
+                navController = navController
             )
         },
         containerColor = whiteColor

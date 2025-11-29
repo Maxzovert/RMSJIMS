@@ -78,7 +78,10 @@ fun BookingScreen(
 ) {
     Scaffold(
         topBar = {
-            CustomTopBar(title = "Bookings")
+            CustomTopBar(
+                title = "Bookings",
+                navController = navController
+            )
         },
         bottomBar = {
             CustomNavigationBar(navController = navController)

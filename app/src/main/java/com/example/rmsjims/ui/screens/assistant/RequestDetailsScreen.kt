@@ -58,7 +58,8 @@ fun RequestDetailsScreen(
         topBar = {
             CustomTopBar(
                 title = "Request Details",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         containerColor = whiteColor

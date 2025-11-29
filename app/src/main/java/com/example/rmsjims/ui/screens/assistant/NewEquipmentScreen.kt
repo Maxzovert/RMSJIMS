@@ -101,7 +101,8 @@ fun NewEquipmentScreen(
                 title = "Add Equipment",
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
             )
         },
         containerColor = whiteColor,

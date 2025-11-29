@@ -33,7 +33,7 @@ fun getBottomNavItems(userRole: UserRole): List<BottomNavScreens> {
         // Admin session: Admin Dashboard
         BottomNavScreens(
             route = Screen.AdminDashboardScreen.route,
-            iconResId = R.drawable.ic_vector,
+            iconResId = R.drawable.ic_dashboard,
             label = "Admin Dashboard"
         )
     } else if (userRole == UserRole.STAFF) {

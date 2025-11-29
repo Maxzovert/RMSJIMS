@@ -79,7 +79,8 @@ fun PermissionsOverviewScreen(
         topBar = {
             CustomTopBar(
                 title = "Roles & Permissions",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         containerColor = whiteColor

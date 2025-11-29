@@ -116,7 +116,8 @@ fun SystemSettingScreen(
         topBar = {
             CustomTopBar(
                 title = "System Settings",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

@@ -193,7 +193,8 @@ fun MachineStatusScreen(
         topBar = {
             CustomTopBar(
                 title = "Machine Status",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

@@ -108,7 +108,8 @@ fun ResourceManagementScreen(
         topBar = {
             CustomTopBar(
                 title = "Operations & Costs",
-                onNavigationClick = { navController.popBackStack() }
+                onNavigationClick = { navController.popBackStack() },
+                navController = navController
             )
         },
         bottomBar = {

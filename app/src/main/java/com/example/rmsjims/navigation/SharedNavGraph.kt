@@ -90,10 +90,12 @@ private fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         // Splash screen content - simple placeholder
-        // The actual splash is handled by MainActivity's installSplashScreen()
-        // This composable just provides a transition point
+        // The actual splash animation with logo is handled by MainActivity's installSplashScreen()
+        // The animated_logo drawable is configured in themes.xml and will be perfectly centered
+        // by the Android SplashScreen API. This composable just provides a transition point
+        // after the system splash animation completes.
         LaunchedEffect(Unit) {
-            delay(2000) // 2 second delay for splash
+            delay(2000) // 2 second delay for splash transition
             onSplashComplete()
         }
     }

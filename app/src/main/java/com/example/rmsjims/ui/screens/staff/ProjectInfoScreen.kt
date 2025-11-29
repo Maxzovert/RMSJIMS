@@ -82,7 +82,8 @@ fun ProjectInfoScreen(
                 title = "Project Information",
                 onNavigationClick = {
                     navController.popBackStack()
-                }
+                },
+                navController = navController
             )
         },
         containerColor = whiteColor,

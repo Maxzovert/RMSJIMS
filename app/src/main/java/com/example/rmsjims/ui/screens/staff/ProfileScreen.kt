@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Scaffold
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -56,7 +55,10 @@ fun ProfileScreen(
 ){
     androidx.compose.material.Scaffold(
         topBar = {
-            CustomTopBar(title = "Profile")
+            CustomTopBar(
+                title = "Profile",
+                navController = navController
+            )
         },
         bottomBar = {
             CustomNavigationBar(navController = navController)
@@ -142,11 +144,11 @@ fun UserProfileSection(
                             painter = painterResource(R.drawable.ic_edit),
                             iconDescription = "Edit Profile Picture",
                             boxSize = pxToDp(28),
-                            iconSize = pxToDp(14),
-                            iconPadding = pxToDp(4),
                             boxColor = primaryColor,
+                            iconPadding = pxToDp(4),
+                            iconSize = pxToDp(14),
+                            onClick = onEditProfilePicture,
                             tint = whiteColor,
-                            onClick = onEditProfilePicture
                         )
                     }
                 }
@@ -277,22 +279,22 @@ fun UserProfileSection(
                         painter = painterResource(R.drawable.ic_mail),
                         iconDescription = "Email",
                         boxSize = pxToDp(36),
-                        iconSize = pxToDp(18),
-                        iconPadding = pxToDp(6),
                         boxColor = circularBoxColor,
-                        tint = primaryColor,
+                        iconPadding = pxToDp(6),
+                        iconSize = pxToDp(18),
                         onClick = {
                             // Copy email to clipboard
                             val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("Email", emailAddress)
                             clipboard.setPrimaryClip(clip)
-                            
+
                             // Open mail app with email in 'To' field
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
                                 data = Uri.parse("mailto:$emailAddress")
                             }
                             context.startActivity(intent)
-                        }
+                        },
+                        tint = primaryColor,
                     )
                     CustomLabel(
                         header = emailAddress,
@@ -313,22 +315,22 @@ fun UserProfileSection(
                         painter = painterResource(R.drawable.ic_call),
                         iconDescription = "Contact",
                         boxSize = pxToDp(36),
-                        iconSize = pxToDp(18),
-                        iconPadding = pxToDp(6),
                         boxColor = circularBoxColor,
-                        tint = primaryColor,
+                        iconPadding = pxToDp(6),
+                        iconSize = pxToDp(18),
                         onClick = {
                             // Copy phone to clipboard
                             val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("Phone", phoneNumber)
                             clipboard.setPrimaryClip(clip)
-                            
+
                             // Open dialer app with number on keypad
                             val intent = Intent(Intent.ACTION_DIAL).apply {
                                 data = Uri.parse("tel:$phoneNumber")
                             }
                             context.startActivity(intent)
-                        }
+                        },
+                        tint = primaryColor,
                     )
                     CustomLabel(
                         header = phoneNumber,
@@ -351,11 +353,11 @@ fun UserProfileSection(
                         painter = painterResource(R.drawable.ic_add_image),
                         iconDescription = "Add Identity Card",
                         boxSize = pxToDp(36),
-                        iconSize = pxToDp(18),
-                        iconPadding = pxToDp(6),
                         boxColor = primaryColor.copy(alpha = 0.1f),
+                        iconPadding = pxToDp(6),
+                        iconSize = pxToDp(18),
+                        onClick = onAddIdentityCard,
                         tint = primaryColor,
-                        onClick = onAddIdentityCard
                     )
                     CustomLabel(
                         header = "Add Identity Card",

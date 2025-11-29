@@ -63,7 +63,10 @@ fun AdminBookingManagementScreen(
 
     androidx.compose.material.Scaffold(
         topBar = {
-            CustomTopBar(title = "Booking Management")
+            CustomTopBar(
+                title = "Booking Management",
+                navController = navController
+            )
         },
         bottomBar = {
             CustomNavigationBar(navController = navController)
