@@ -99,20 +99,26 @@ fun CalendarScreen(
             )
         },
         bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-                    .padding(ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                AppButton(
-                    buttonText = "CONFIRM",
-                    onClick = {
-                        navController.navigate(Screen.ProjectInfoScreen.route)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            val hasCompleteRange = viewModel.hasCompleteRange()
+            if (hasCompleteRange) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                        .padding(ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AppButton(
+                        buttonText = "CONFIRM",
+                        onClick = {
+                            viewModel.confirmSelection()?.let { bookingDates ->
+                                bookingViewmodel.updateSelectedBookingDates(bookingDates)
+                                navController.navigate(Screen.BookingsScreen.route)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -141,7 +147,7 @@ fun CalendarScreen(
             // Calendar Grid
             CalendarGrid(
                 dates = dates,
-                selectedDate = selectedDate,
+                viewModel = viewModel,
                 today = LocalDate.now(),
                 onDateClick = viewModel::selectDate,
                 currentMonth = currentMonth,
@@ -231,12 +237,14 @@ fun DaysOfWeekHeader(
 @Composable
 fun CalendarGrid(
     dates: List<LocalDate>, // Should be ordered from Sunday to Saturday in each week
-    selectedDate: LocalDate,
+    viewModel: CalendarViewModel,
     today: LocalDate,
     currentMonth: YearMonth,
     onDateClick: (LocalDate) -> Unit
 ) {
     val weeks = dates.chunked(7)
+    val selectedStartDate = viewModel.selectedStartDate
+    val selectedEndDate = viewModel.selectedEndDate
 
     Column(
         verticalArrangement = Arrangement.spacedBy(pxToDp(4))
@@ -248,9 +256,36 @@ fun CalendarGrid(
             ) {
                 week.forEach { date ->
                     val isToday = date == today
-                    val isSelected = date == selectedDate
-                    val inMonth = date.month == selectedDate.month
-                    val isWeekend = date.dayOfWeek == DayOfWeek.SUNDAY || date.dayOfWeek == DayOfWeek.SATURDAY
+                    val inMonth = date.month == currentMonth.month
+                    val isHoliday = viewModel.isDateHoliday(date)
+                    val isBooked = viewModel.isDateBooked(date)
+                    val isPast = viewModel.isDateInPast(date)
+                    val isInRange = viewModel.isDateInRange(date)
+                    val isRangeStart = viewModel.isDateRangeStart(date)
+                    val isRangeEnd = viewModel.isDateRangeEnd(date)
+                    val isSelected = isRangeStart || isRangeEnd
+
+                    // Determine background color based on legend
+                    val backgroundColor = when {
+                        isSelected -> primaryColor // Selected (Book On) - primaryColor background
+                        isInRange -> primaryColor.copy(alpha = 0.3f) // In range - lighter primary
+                        isBooked -> onSurfaceVariant // Booked - onSurfaceVariant background
+                        isHoliday -> onSurfaceVariant // Holidays - onSurfaceVariant background
+                        isPast -> onSurfaceVariant.copy(alpha = 0.5f) // Past dates - greyed out
+                        inMonth -> onSurfaceVariant // Available - onSurfaceVariant background
+                        else -> onSurfaceVariant // Out of month
+                    }
+
+                    // Determine text color based on legend
+                    val textColor = when {
+                        isSelected -> whiteColor // Selected - white text
+                        isInRange -> primaryColor // In range - primaryColor text
+                        isBooked -> errorColor // Booked - errorColor text
+                        isHoliday -> errorColor // Holidays - errorColor text
+                        isPast -> onSurfaceColor.copy(alpha = 0.4f) // Past dates - greyed out text
+                        inMonth -> onSurfaceColor // Available - onSurfaceColor text
+                        else -> daysColor // Out of month
+                    }
 
                     Box(
                         contentAlignment = Alignment.Center,
@@ -259,36 +294,32 @@ fun CalendarGrid(
                             .width(pxToDp(48))
                             .height(pxToDp(60))
                             .clip(RoundedCornerShape(pxToDp(4)))
-                            .background(
-                                when {
-                                    isSelected -> primaryColor
-                                    inMonth -> onSurfaceVariant
-                                    else -> onSurfaceVariant
-                                }
-                            )
+                            .background(backgroundColor)
                             .border(
                                 width = when {
                                     isToday -> pxToDp(1)
-//                                    !inMonth -> 1.dp
                                     else -> 0.dp
                                 },
                                 color = when {
                                     isToday -> primaryColor
-                                    !inMonth -> Color.Transparent
                                     else -> Color.Transparent
                                 },
                                 shape = RoundedCornerShape(pxToDp(4))
                             )
-                            .clickable { onDateClick(date) }
+                            .then(
+                                if (isPast) {
+                                    Modifier // Past dates are not clickable
+                                } else {
+                                    Modifier.clickable { onDateClick(date) }
+                                }
+                            )
                     ) {
                         Text(
                             text = date.dayOfMonth.toString(),
-                            color = when {
-                                isWeekend -> errorColor
-                                inMonth -> onSurfaceColor
-                                else -> daysColor
-                            },
-                            style = MaterialTheme.typography.bodySmall
+                            color = textColor,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                textDecoration = if (isBooked) TextDecoration.LineThrough else TextDecoration.None
+                            )
                         )
                     }
                 }

@@ -36,6 +36,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import com.example.rmsjims.R
 import com.example.rmsjims.data.model.BookingDates
 import com.example.rmsjims.data.model.BookingItem
@@ -251,7 +256,9 @@ fun InfoCard(
                 InChargeRow(
                     label = "Asst.",
                     name = inChargeInfo.asstName,
-                    icons = inChargeInfo.asstIcons
+                    icons = inChargeInfo.asstIcons,
+                    email = null, // Email not available in InChargeInfo
+                    phone = null  // Phone not available in InChargeInfo
                 )
             }
 

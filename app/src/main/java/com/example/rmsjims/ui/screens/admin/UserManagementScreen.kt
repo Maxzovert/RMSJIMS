@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.rmsjims.navigation.Screen
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.rmsjims.R
@@ -227,7 +228,7 @@ fun UserManagementScreen(
                     UserCard(
                         user = user,
                         onClick = {
-                            // Navigation removed - UI screen kept for future use
+                            navController.navigate(Screen.UserDetailScreen.createRoute(user.id))
                         }
                     )
                 }
@@ -401,6 +402,7 @@ fun StatusTag(status: UserStatus) {
         UserStatus.SUSPENDED -> errorColor.copy(0.2f) to errorColor
         UserStatus.PENDING -> Color(0xFFFFA500).copy(0.2f) to Color(0xFFFFA500)
         UserStatus.OVERDUE -> errorColor.copy(0.2f) to errorColor
+        UserStatus.DISABLED -> onSurfaceColor.copy(0.2f) to onSurfaceColor.copy(0.7f)
     }
     
     Box(
@@ -465,7 +467,8 @@ enum class UserStatus(val displayName: String) {
     ACTIVE("Active"),
     SUSPENDED("Suspended"),
     PENDING("Pending"),
-    OVERDUE("Overdue")
+    OVERDUE("Overdue"),
+    DISABLED("Disabled")
 }
 
 enum class UserMainFilter {

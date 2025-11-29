@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.rmsjims.data.model.BookingDates
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -20,6 +21,13 @@ class CalendarViewModel() : ViewModel() {
     @RequiresApi(Build.VERSION_CODES.O)
     private val today = LocalDate.now()
 
+    var selectedStartDate by mutableStateOf<LocalDate?>(null)
+        private set
+
+    var selectedEndDate by mutableStateOf<LocalDate?>(null)
+        private set
+
+    // Keep selectedDate for backward compatibility (used for current month display)
     var selectedDate by mutableStateOf(today)
         private set
 
@@ -28,8 +36,81 @@ class CalendarViewModel() : ViewModel() {
 
     val daysOfWeek: List<DayOfWeek> = DayOfWeek.values().toList()
 
+    fun isDateInPast(date: LocalDate): Boolean {
+        return date.isBefore(today)
+    }
+
+    fun isDateBooked(date: LocalDate): Boolean {
+        // Check if date matches bookedDate (for now, can be extended to check against list)
+        return date == bookedDate
+    }
+
+    fun isDateHoliday(date: LocalDate): Boolean {
+        return date.dayOfWeek == DayOfWeek.SUNDAY
+    }
+
     fun selectDate(date: LocalDate) {
+        // Prevent selecting past dates
+        if (isDateInPast(date)) {
+            return
+        }
+
+        when {
+            // If no start date selected, set it
+            selectedStartDate == null -> {
+                selectedStartDate = date
+                selectedEndDate = null
+            }
+            // If start date is selected and end date is null, set end date
+            selectedEndDate == null -> {
+                if (date.isBefore(selectedStartDate!!)) {
+                    // If selected date is before start, make it the new start
+                    selectedEndDate = selectedStartDate
+                    selectedStartDate = date
+                } else {
+                    selectedEndDate = date
+                }
+            }
+            // If both are selected, start a new selection
+            else -> {
+                selectedStartDate = date
+                selectedEndDate = null
+            }
+        }
         selectedDate = date
+    }
+
+    fun isDateInRange(date: LocalDate): Boolean {
+        return selectedStartDate != null && selectedEndDate != null &&
+                !date.isBefore(selectedStartDate!!) && !date.isAfter(selectedEndDate!!)
+    }
+
+    fun isDateRangeStart(date: LocalDate): Boolean {
+        return date == selectedStartDate
+    }
+
+    fun isDateRangeEnd(date: LocalDate): Boolean {
+        return date == selectedEndDate
+    }
+
+    fun hasCompleteRange(): Boolean {
+        return selectedStartDate != null && selectedEndDate != null
+    }
+
+    fun confirmSelection(): BookingDates? {
+        return if (hasCompleteRange()) {
+            BookingDates(
+                fromDate = selectedStartDate!!.toString(),
+                toDate = selectedEndDate!!.toString()
+            )
+        } else {
+            null
+        }
+    }
+
+    fun resetSelection() {
+        selectedStartDate = null
+        selectedEndDate = null
     }
 
     fun setMonth(month: YearMonth) {

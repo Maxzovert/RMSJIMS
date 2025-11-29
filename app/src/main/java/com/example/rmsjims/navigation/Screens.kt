@@ -12,9 +12,11 @@ sealed class Screen(val route : String) {
     object RaiseTicketScreen : Screen("ticket_raise")
     object TicketScreen : Screen("tickets")
     object ProductDescriptionScreen : Screen("profileDescription")
+    object ProductDescriptionEditScreen : Screen("profileDescription/edit")
     object ProfileScreen : Screen("profile")
     object AdminDashboardScreen : Screen("admin_dashboard")
-    object EquipmentAssignmentScreen : Screen("equipment_assignment")
+    object AdminBookingsScreen : Screen("admin_bookings")
+    object EquipmentManagementScreen : Screen("equipment_management")
     object SystemSettingScreen : Screen("system_setting")
     object UserManagementScreen : Screen("user_management")
     object UserDetailScreen : Screen("user_detail/{userId}") {
@@ -26,6 +28,7 @@ sealed class Screen(val route : String) {
         fun createRoute(machineId: String) = "machine_detail/$machineId"
     }
     object MaintenanceApprovalScreen : Screen("maintenance_approval")
+    object NewEquipmentScreen : Screen("new_equipment")
     object MaintenanceDetailScreen : Screen("maintenance_detail/{requestId}") {
         fun createRoute(requestId: String) = "maintenance_detail/$requestId"
     }
@@ -41,8 +44,10 @@ sealed class Screen(val route : String) {
     object PermissionsOverviewScreen : Screen("permissions_overview/{selectedRole}") {
         fun createRoute(selectedRole: String) = "permissions_overview/$selectedRole"
     }
+    object SplashScreen : Screen("splash")
     
-    // Role-based navigation graph routes
+    // Navigation graph routes
+    object SharedNavGraph : Screen("shared_nav_graph")
     object AdminNavGraph : Screen("admin_nav_graph")
     object AssistantNavGraph : Screen("assistant_nav_graph")
     object StaffNavGraph : Screen("staff_nav_graph")

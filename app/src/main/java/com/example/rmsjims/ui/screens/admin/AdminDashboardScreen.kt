@@ -1,5 +1,9 @@
 package com.example.rmsjims.ui.screens.admin
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,180 +14,190 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.rmsjims.ui.components.AppButton
+import com.example.rmsjims.R
+import com.example.rmsjims.navigation.Screen
+import com.example.rmsjims.ui.components.AppCircularIcon
 import com.example.rmsjims.ui.components.AppNavIcon
+import com.example.rmsjims.ui.components.AppSearchBar
 import com.example.rmsjims.ui.components.CustomLabel
 import com.example.rmsjims.ui.components.CustomNavigationBar
-import com.example.rmsjims.ui.components.CustomTopBar
+import com.example.rmsjims.ui.components.AppLogoImage
 import com.example.rmsjims.ui.theme.onSurfaceColor
 import com.example.rmsjims.ui.theme.onSurfaceVariant
 import com.example.rmsjims.ui.theme.primaryColor
 import com.example.rmsjims.ui.theme.whiteColor
+import com.example.rmsjims.ui.theme.errorColor
+import com.example.rmsjims.ui.theme.headerColor
 import com.example.rmsjims.util.ResponsiveLayout
 import com.example.rmsjims.util.pxToDp
-import com.example.rmsjims.R
-import com.example.rmsjims.navigation.Screen
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AdminDashboardScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    adminName: String = "Admin" // Default admin name, can be passed from ViewModel
 ) {
-    // Stats carousel data (horizontal)
-    val resourceStats = listOf(
-        StatItem(name = "Total Resources", value = "156", color = primaryColor, iconRes = R.drawable.ic_storage),
-        StatItem(name = "Available", value = "94", color = Color(0xFF26BB64), iconRes = R.drawable.ic_vector),
-        StatItem(name = "In Use", value = "48", color = Color(0xFFE67824), iconRes = R.drawable.ic_tripod),
-        StatItem(name = "Maintenance", value = "6", color = Color(0xFFE64646), iconRes = R.drawable.ic_assigned_time),
-        StatItem(name = "Pending", value = "12", color = Color(0xFF024CA1), iconRes = R.drawable.ic_ticket_thread)
-    )
-
-    // Alerts panel data
-    val alerts = listOf(
-        AlertItem(type = AlertType.CRITICAL, title = "Cooling failure in Lab A-101", message = "HPC server temperature exceeded safe threshold. Immediate action required."),
-        AlertItem(type = AlertType.WARNING, title = "Consumables low for 3D Printer", message = "Filament levels below 20%. Refill recommended this week."),
-        AlertItem(type = AlertType.INFO, title = "New policy update", message = "Booking window extended to 10 days for faculty users.")
-    )
-
-    // Feature grid items
-    val features = listOf(
-        FeatureItem("View Requests", R.drawable.ic_ticket_thread, Screen.TicketManagementScreen.route),
-        FeatureItem("Verify Resource", R.drawable.ic_edit, Screen.UsageApprovalScreen.route),
-        FeatureItem("Update Status", R.drawable.ic_assigned_time, Screen.MachineStatusScreen.route),
-        FeatureItem("Maintenance Log", R.drawable.ic_edit, Screen.MaintenanceApprovalScreen.route),
-        FeatureItem("View Reports", R.drawable.ic_vector, Screen.ResourceManagementScreen.route),
-        FeatureItem("Messages", R.drawable.ic_chat, Screen.TicketManagementScreen.route)
+    var searchQuery by remember { mutableStateOf("") }
+    var fabExpanded by remember { mutableStateOf(false) }
+    
+    // Organization info
+    val organizationName = "GYMS"
+    val location = "Mumbai, India" // Placeholder
+    val currentDate = SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault()).format(Date())
+    
+    // Functionality cards
+    val functionalityCards = listOf(
+        FunctionalityCard(
+            title = "Equipment Management",
+            iconRes = R.drawable.ic_storage,
+            route = Screen.EquipmentManagementScreen.route
+        ),
+        FunctionalityCard(
+            title = "Booking Management",
+            iconRes = R.drawable.ic_ticket_thread,
+            route = Screen.AdminBookingsScreen.route
+        ),
+        FunctionalityCard(
+            title = "User Management",
+            iconRes = R.drawable.ic_edit,
+            route = Screen.UserManagementScreen.route
+        ),
+        FunctionalityCard(
+            title = "System Settings",
+            iconRes = R.drawable.ic_vector,
+            route = Screen.SystemSettingScreen.route
+        ),
+        FunctionalityCard(
+            title = "Operations & Costs",
+            iconRes = R.drawable.ic_assigned_time,
+            route = Screen.ResourceManagementScreen.route
+        ),
+        FunctionalityCard(
+            title = "Logs, Audits & Tickets",
+            iconRes = R.drawable.ic_chat,
+            route = Screen.TicketManagementScreen.route
+        )
     )
 
     Scaffold(
         topBar = {
-            CustomTopBar(
-                title = "Admin Dashboard",
-                onNavigationClick = { navController.popBackStack() }
+            AdminDashboardTopBar(
+                onNotificationClick = { /* Handle notification click */ },
+                searchQuery = searchQuery,
+                onSearchQueryChange = { searchQuery = it }
             )
         },
         bottomBar = {
             CustomNavigationBar(navController = navController)
         },
+        floatingActionButton = {
+            AdminFAB(
+                expanded = fabExpanded,
+                onExpandedChange = { fabExpanded = it },
+                onAddEquipment = { 
+                    fabExpanded = false
+                    navController.navigate(Screen.NewEquipmentScreen.route)
+                },
+                onAddUser = { 
+                    fabExpanded = false
+                    navController.navigate(Screen.UserManagementScreen.route)
+                },
+                onAddBooking = { 
+                    fabExpanded = false
+                    navController.navigate(Screen.AdminBookingsScreen.route)
+                }
+            )
+        },
         containerColor = whiteColor
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                horizontal = ResponsiveLayout.getHorizontalPadding(),
+                vertical = ResponsiveLayout.getVerticalPadding()
+            ),
+            verticalArrangement = Arrangement.spacedBy(ResponsiveLayout.getResponsivePadding(20.dp, 24.dp, 28.dp))
         ) {
-            Spacer(modifier = Modifier.height(ResponsiveLayout.getVerticalPadding()))
-            
-            // Horizontal Stats Carousel
-            StatsCarousel(items = resourceStats)
-            
-            Spacer(modifier = Modifier.height(ResponsiveLayout.getVerticalPadding()))
-
-            // System Alerts
-            CustomLabel(
-                header = "System Alerts",
-                fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
-                modifier = Modifier.padding(horizontal = ResponsiveLayout.getHorizontalPadding()),
-                headerColor = onSurfaceColor
-            )
-            Spacer(modifier = Modifier.height(ResponsiveLayout.getResponsivePadding(12.dp, 16.dp, 20.dp)))
-            AlertsPanel(items = alerts)
-            
-            // Quick Actions Section
-            CustomLabel(
-                header = "Quick Actions",
-                fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
-                modifier = Modifier.padding(horizontal = ResponsiveLayout.getHorizontalPadding()),
-                headerColor = onSurfaceColor
-            )
-            
-            Spacer(modifier = Modifier.height(ResponsiveLayout.getResponsivePadding(12.dp, 16.dp, 20.dp)))
-            
-            // Feature Grid (2 columns)
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(
-                    horizontal = ResponsiveLayout.getHorizontalPadding(),
-                    vertical = ResponsiveLayout.getVerticalPadding()
-                ),
-                verticalArrangement = ResponsiveLayout.getVerticalGridArrangement(),
-                horizontalArrangement = ResponsiveLayout.getGridArrangement()
-            ) {
-                items(features) { feature ->
-                    FeatureCard(feature = feature) { navController.navigate(feature.route) }
-                }
+            // Greeting Section
+            item {
+                GreetingSection(adminName = adminName)
             }
             
-            Spacer(modifier = Modifier.height(ResponsiveLayout.getVerticalPadding()))
-        }
-    }
-}
-
-@Composable
-fun StatsCarousel(items: List<StatItem>) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = ResponsiveLayout.getHorizontalPadding()),
-        horizontalArrangement = Arrangement.spacedBy(ResponsiveLayout.getCardSpacing())
-    ) {
-        items(items) { stat ->
-            Card(
-                modifier = Modifier,
-                colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
-                shape = RectangleShape,
-                elevation = CardDefaults.cardElevation(defaultElevation = pxToDp(2))
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
-                        vertical = ResponsiveLayout.getResponsivePadding(14.dp, 18.dp, 22.dp)
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(pxToDp(12)),
-                    verticalAlignment = Alignment.CenterVertically
+            // Intro Card / Organization Info
+            item {
+                OrganizationInfoOutlineBox(
+                    organizationName = organizationName,
+                    location = location,
+                    currentDate = currentDate
+                )
+            }
+            
+            // Main Functionality Cards Section Header
+            item {
+                CustomLabel(
+                    header = "Quick Actions",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
+                    headerColor = onSurfaceColor,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            
+            // Main Functionality Cards Grid (2 columns × 3 rows)
+            item {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(0.dp),
+                    verticalArrangement = ResponsiveLayout.getVerticalGridArrangement(),
+                    horizontalArrangement = ResponsiveLayout.getGridArrangement(),
+                    modifier = Modifier.height(ResponsiveLayout.getResponsiveSize(480.dp, 540.dp, 600.dp))
                 ) {
-                    // Circular colored icon
-                    Surface(
-                        color = stat.color.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(pxToDp(24))
-                    ) {
-                        Box(modifier = Modifier.padding(pxToDp(10))) {
-                            AppNavIcon(
-                                painter = painterResource(id = stat.iconRes),
-                                iconDescription = stat.name,
-                                tint = stat.color
-                            )
-                        }
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(pxToDp(4))) {
-                        CustomLabel(
-                            header = stat.name,
-                            headerColor = onSurfaceColor
-                        )
-                        CustomLabel(
-                            header = stat.value,
-                            fontSize = ResponsiveLayout.getResponsiveFontSize(20.sp, 24.sp, 28.sp),
-                            headerColor = stat.color
+                    items(functionalityCards) { card ->
+                        FunctionalityCardItem(
+                            card = card,
+                            onClick = { navController.navigate(card.route) }
                         )
                     }
                 }
@@ -193,166 +207,266 @@ fun StatsCarousel(items: List<StatItem>) {
 }
 
 @Composable
-fun QuickActionCard(action: QuickAction) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = onSurfaceVariant
-        ),
-        shape = RectangleShape
+fun AdminDashboardTopBar(
+    onNotificationClick: () -> Unit,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(whiteColor)
+            .padding(
+                horizontal = ResponsiveLayout.getHorizontalPadding(),
+                vertical = ResponsiveLayout.getResponsivePadding(15.dp, 18.dp, 22.dp)
+            )
+    ) {
+        // Title and Notification Icon Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Spacer to center the title
+            Spacer(modifier = Modifier.width(ResponsiveLayout.getResponsiveSize(24.dp, 28.dp, 32.dp)))
+            
+            // Centered Title
+            CustomLabel(
+                header = "Admin Dashboard",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(25.sp, 28.sp, 32.sp),
+                headerColor = headerColor,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            
+            // Notification Icon
+            AppCircularIcon(
+                painter = painterResource(R.drawable.ic_mail), // Using available icon, replace with notification icon if available
+                iconDescription = "Notifications",
+                onClick = onNotificationClick,
+                tint = onSurfaceColor
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)))
+        
+        // Search Bar
+        AppSearchBar(
+            query = searchQuery,
+            onQueryChange = onSearchQueryChange,
+            placeholder = "Search equipment..."
+        )
+    }
+}
+
+@Composable
+fun GreetingSection(adminName: String) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(pxToDp(4))
+    ) {
+        CustomLabel(
+            header = "Hi, $adminName",
+            fontSize = ResponsiveLayout.getResponsiveFontSize(24.sp, 28.sp, 32.sp),
+            headerColor = onSurfaceColor,
+            fontWeight = FontWeight.SemiBold
+        )
+        CustomLabel(
+            header = "Check your dashboard tasks",
+            fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+            headerColor = onSurfaceColor.copy(0.7f)
+        )
+    }
+}
+
+@Composable
+fun OrganizationInfoOutlineBox(
+    organizationName: String,
+    location: String,
+    currentDate: String
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = ResponsiveLayout.getResponsivePadding(1.dp, 1.5.dp, 2.dp),
+                color = onSurfaceColor.copy(0.2f),
+                shape = RoundedCornerShape(ResponsiveLayout.getResponsiveSize(8.dp, 12.dp, 16.dp))
+            )
+            .padding(ResponsiveLayout.getResponsivePadding(20.dp, 24.dp, 28.dp))
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
-                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
-                ),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(pxToDp(4))
+                verticalArrangement = Arrangement.spacedBy(ResponsiveLayout.getResponsivePadding(8.dp, 10.dp, 12.dp))
             ) {
                 CustomLabel(
-                    header = action.title,
-                    fontSize = ResponsiveLayout.getResponsiveFontSize(16.sp, 18.sp, 20.sp),
-                    headerColor = onSurfaceColor
+                    header = organizationName,
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(20.sp, 24.sp, 28.sp),
+                    headerColor = onSurfaceColor,
+                    fontWeight = FontWeight.SemiBold
                 )
                 CustomLabel(
-                    header = action.description,
-                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
-                    headerColor = onSurfaceColor.copy(0.6f)
+                    header = location,
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                    headerColor = onSurfaceColor.copy(0.7f)
+                )
+                CustomLabel(
+                    header = currentDate,
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                    headerColor = onSurfaceColor.copy(0.8f)
                 )
             }
             
-            AppButton(
-                buttonText = "Go",
-                onClick = { },
-                modifier = Modifier.padding(start = pxToDp(16))
+            // App Logo
+            Image(
+                painter = painterResource(R.drawable.jims_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(ResponsiveLayout.getResponsiveSize(80.dp, 100.dp, 120.dp))
+                    .clip(RoundedCornerShape(ResponsiveLayout.getResponsiveSize(8.dp, 12.dp, 16.dp))),
+                contentScale = ContentScale.Fit
             )
         }
     }
 }
 
 @Composable
-fun AlertsPanel(items: List<AlertItem>) {
-    Column(
+fun FunctionalityCardItem(
+    card: FunctionalityCard,
+    onClick: () -> Unit
+) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = ResponsiveLayout.getHorizontalPadding()),
-        verticalArrangement = Arrangement.spacedBy(ResponsiveLayout.getCardSpacing())
+            .height(ResponsiveLayout.getResponsiveSize(140.dp, 160.dp, 180.dp))
+            .shadow(
+                elevation = ResponsiveLayout.getResponsiveSize(2.dp, 3.dp, 4.dp),
+                shape = RoundedCornerShape(ResponsiveLayout.getResponsiveSize(12.dp, 16.dp, 20.dp))
+            ),
+        colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
+        shape = RoundedCornerShape(ResponsiveLayout.getResponsiveSize(12.dp, 16.dp, 20.dp)),
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(defaultElevation = pxToDp(3))
     ) {
-        items.forEach { alert ->
-            val (expanded, setExpanded) = remember { mutableStateOf(false) }
-            val (bgColor, tagColor) = when (alert.type) {
-                AlertType.CRITICAL -> Color(0xFFFFE5E5) to Color(0xFFE64646)
-                AlertType.WARNING -> Color(0xFFFFF0E1) to Color(0xFFE67824)
-                AlertType.INFO -> Color(0xFFE8F0FF) to primaryColor
-            }
-            Card(
-                colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
-                shape = RectangleShape,
-                onClick = { setExpanded(!expanded) },
-                elevation = CardDefaults.cardElevation(defaultElevation = pxToDp(1))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            onSurfaceVariant,
+                            onSurfaceVariant.copy(alpha = 0.95f)
+                        )
+                    )
+                )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
-                        vertical = ResponsiveLayout.getResponsivePadding(12.dp, 16.dp, 20.dp)
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(pxToDp(8))
+                Surface(
+                    color = primaryColor.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(ResponsiveLayout.getResponsiveSize(14.dp, 16.dp, 18.dp))
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(pxToDp(10)),
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier.padding(ResponsiveLayout.getResponsivePadding(12.dp, 14.dp, 16.dp))
                     ) {
-                        Surface(color = tagColor, shape = RoundedCornerShape(pxToDp(8))) {
-                            Box(modifier = Modifier.padding(horizontal = pxToDp(8), vertical = pxToDp(2))) {
-                                CustomLabel(
-                                    header = when (alert.type) {
-                                        AlertType.CRITICAL -> "Critical"
-                                        AlertType.WARNING -> "Warning"
-                                        AlertType.INFO -> "Info"
-                                    },
-                                    headerColor = whiteColor
-                                )
-                            }
-                        }
-                        CustomLabel(header = alert.title, headerColor = onSurfaceColor)
-                    }
-                    if (expanded) {
-                        CustomLabel(
-                            header = alert.message,
-                            headerColor = onSurfaceColor.copy(0.8f)
+                        AppNavIcon(
+                            painter = painterResource(id = card.iconRes),
+                            iconDescription = card.title,
+                            tint = primaryColor,
+                            iconSize = ResponsiveLayout.getResponsiveSize(32.dp, 36.dp, 40.dp)
                         )
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(ResponsiveLayout.getResponsivePadding(14.dp, 16.dp, 18.dp)))
+                
+                CustomLabel(
+                    header = card.title,
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                    headerColor = onSurfaceColor,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLine = 2
+                )
             }
         }
     }
 }
 
 @Composable
-fun FeatureCard(feature: FeatureItem, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
-        shape = RectangleShape,
-        onClick = onClick,
-        elevation = CardDefaults.cardElevation(defaultElevation = pxToDp(1))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
-                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
-                ),
-            horizontalArrangement = Arrangement.spacedBy(pxToDp(12)),
-            verticalAlignment = Alignment.CenterVertically
+fun AdminFAB(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onAddEquipment: () -> Unit,
+    onAddUser: () -> Unit,
+    onAddBooking: () -> Unit
+) {
+    Box {
+        FloatingActionButton(
+            onClick = { onExpandedChange(!expanded) },
+            containerColor = primaryColor,
+            contentColor = whiteColor,
+            shape = CircleShape,
+            modifier = Modifier.size(ResponsiveLayout.getResponsiveSize(56.dp, 64.dp, 72.dp))
         ) {
-            Surface(color = primaryColor.copy(0.1f), shape = RoundedCornerShape(pxToDp(12))) {
-                Box(modifier = Modifier.padding(pxToDp(10))) {
-                    AppNavIcon(
-                        painter = painterResource(id = feature.iconRes),
-                        iconDescription = feature.name,
-                        tint = primaryColor
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add",
+                modifier = Modifier.size(ResponsiveLayout.getResponsiveSize(24.dp, 28.dp, 32.dp))
+            )
+        }
+        
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+            modifier = Modifier.background(whiteColor)
+        ) {
+            DropdownMenuItem(
+                text = { 
+                    CustomLabel(
+                        header = "Add New Equipment",
+                        fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                        headerColor = onSurfaceColor
                     )
-                }
-            }
-            CustomLabel(
-                header = feature.name,
-                headerColor = onSurfaceColor
+                },
+                onClick = onAddEquipment
+            )
+            DropdownMenuItem(
+                text = { 
+                    CustomLabel(
+                        header = "Add New User",
+                        fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                        headerColor = onSurfaceColor
+                    )
+                },
+                onClick = onAddUser
+            )
+            DropdownMenuItem(
+                text = { 
+                    CustomLabel(
+                        header = "Add New Booking",
+                        fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                        headerColor = onSurfaceColor
+                    )
+                },
+                onClick = onAddBooking
             )
         }
     }
 }
 
-// Placeholder data classes
-data class StatItem(
-    val name: String,
-    val value: String,
-    val color: Color,
-    val iconRes: Int
-)
-
-data class QuickAction(
+// Data classes
+data class FunctionalityCard(
     val title: String,
-    val description: String
-)
-
-data class AlertItem(
-    val type: AlertType,
-    val title: String,
-    val message: String
-)
-
-enum class AlertType { CRITICAL, WARNING, INFO }
-
-data class FeatureItem(
-    val name: String,
     val iconRes: Int,
     val route: String
 )

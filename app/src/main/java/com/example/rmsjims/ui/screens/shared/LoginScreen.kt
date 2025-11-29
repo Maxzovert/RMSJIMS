@@ -78,7 +78,7 @@ fun LoginScreen(
 
     LaunchedEffect(autoLoginRequested) {
         if (autoLoginRequested && rememberMe && username.isNotBlank() && password.isNotBlank()) {
-            navController.navigate(Screen.HomeScreen.route) {
+            navController.navigate(Screen.RoleSelectionScreen.route) {
                 popUpTo(Screen.LoginScreen.route) { inclusive = true }
             }
             autoLoginRequested = false
@@ -215,7 +215,7 @@ fun LoginScreen(
                 } else {
                     rememberMeManager.clearCredentials()
                 }
-                navController.navigate(Screen.HomeScreen.route) {
+                navController.navigate(Screen.RoleSelectionScreen.route) {
                     popUpTo(Screen.LoginScreen.route) { inclusive = true }
                 }
                       },

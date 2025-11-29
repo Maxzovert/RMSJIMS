@@ -29,6 +29,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import com.example.rmsjims.R
 import com.example.rmsjims.ui.components.AppCategoryIcon
 import com.example.rmsjims.ui.components.AppCircularIcon
@@ -76,8 +81,8 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(ResponsiveLayout.getResponsivePadding(20.dp, 24.dp, 28.dp)))
 
             // Booking History Section
-            BookingHistorySection()
-
+//            BookingHistorySection()
+ 
             Spacer(modifier = Modifier.height(ResponsiveLayout.getResponsivePadding(20.dp, 24.dp, 28.dp)))
         }
     }
@@ -261,6 +266,8 @@ fun UserProfileSection(
                 )
 
                 // Email
+                val context = LocalContext.current
+                val emailAddress = "sumant.rao@jims.edu.in"
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(pxToDp(12)),
                     verticalAlignment = Alignment.CenterVertically,
@@ -273,10 +280,22 @@ fun UserProfileSection(
                         iconSize = pxToDp(18),
                         iconPadding = pxToDp(6),
                         boxColor = circularBoxColor,
-                        tint = primaryColor
+                        tint = primaryColor,
+                        onClick = {
+                            // Copy email to clipboard
+                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("Email", emailAddress)
+                            clipboard.setPrimaryClip(clip)
+                            
+                            // Open mail app with email in 'To' field
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:$emailAddress")
+                            }
+                            context.startActivity(intent)
+                        }
                     )
                     CustomLabel(
-                        header = "sumant.rao@jims.edu.in",
+                        header = emailAddress,
                         fontSize = 14.sp,
                         headerColor = onSurfaceColor.copy(0.8f),
                         modifier = Modifier.weight(1f)
@@ -284,6 +303,7 @@ fun UserProfileSection(
                 }
 
                 // Contact Number
+                val phoneNumber = "+91 98765 43210"
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(pxToDp(12)),
                     verticalAlignment = Alignment.CenterVertically,
@@ -296,10 +316,22 @@ fun UserProfileSection(
                         iconSize = pxToDp(18),
                         iconPadding = pxToDp(6),
                         boxColor = circularBoxColor,
-                        tint = primaryColor
+                        tint = primaryColor,
+                        onClick = {
+                            // Copy phone to clipboard
+                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("Phone", phoneNumber)
+                            clipboard.setPrimaryClip(clip)
+                            
+                            // Open dialer app with number on keypad
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = Uri.parse("tel:$phoneNumber")
+                            }
+                            context.startActivity(intent)
+                        }
                     )
                     CustomLabel(
-                        header = "+91 98765 43210",
+                        header = phoneNumber,
                         fontSize = 14.sp,
                         headerColor = onSurfaceColor.copy(0.8f),
                         modifier = Modifier.weight(1f)

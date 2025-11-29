@@ -368,7 +368,9 @@ fun InChargeCard(
                     InChargeRow(
                         label = "Asst.",
                         name = "Akash Kumar Swami",
-                        icons = listOf(R.drawable.ic_mail, R.drawable.ic_call)
+                        icons = listOf(R.drawable.ic_mail, R.drawable.ic_call),
+                        email = "akash.swami@example.com",
+                        phone = "+91 9876543210"
                     )
                 }
             } else {

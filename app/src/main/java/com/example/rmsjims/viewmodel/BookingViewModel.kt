@@ -29,6 +29,13 @@ class BookingScreenViewmodel : ViewModel() {
     var selectedTab by mutableStateOf(BookingTab.Booking_Requests)
         private set
 
+    var selectedBookingDates by mutableStateOf<BookingDates?>(null)
+        private set
+
+    fun updateSelectedBookingDates(dates: BookingDates) {
+        selectedBookingDates = dates
+    }
+
     // Sample bookings data
     private val allBookings = listOf(
         BookingItem(
@@ -110,10 +117,24 @@ class BookingScreenViewmodel : ViewModel() {
     )
 
     val filteredBookings: List<BookingItem>
-        get() = when (selectedTab) {
-            BookingTab.Booking_Requests -> allBookings.filter { it.bookingStatus == BookingStatus.VERIFICATION_PENDING }
-            BookingTab.Verified_Bookings -> allBookings.filter { it.bookingStatus == BookingStatus.APPROVED }
-            BookingTab.Canceled_Bookings -> allBookings.filter { it.bookingStatus == BookingStatus.REJECTED }
+        get() {
+            val bookings = when (selectedTab) {
+                BookingTab.Booking_Requests -> allBookings.filter { it.bookingStatus == BookingStatus.VERIFICATION_PENDING }
+                BookingTab.Verified_Bookings -> allBookings.filter { it.bookingStatus == BookingStatus.APPROVED }
+                BookingTab.Canceled_Bookings -> allBookings.filter { it.bookingStatus == BookingStatus.REJECTED }
+            }
+            // If we have selected booking dates and we're on Booking Requests tab, update the first booking's dates
+            return if (selectedBookingDates != null && selectedTab == BookingTab.Booking_Requests && bookings.isNotEmpty()) {
+                bookings.mapIndexed { index, booking ->
+                    if (index == 0) {
+                        booking.copy(bookingDates = selectedBookingDates!!)
+                    } else {
+                        booking
+                    }
+                }
+            } else {
+                bookings
+            }
         }
 
     fun onTabSelect(tab: BookingTab) {

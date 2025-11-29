@@ -7,14 +7,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.rmsjims.ui.screens.shared.RoleSelectionScreen
-import com.example.rmsjims.viewmodel.UserSessionViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainApp(
-    startDestination: String = Screen.RoleSelectionScreen.route
+    startDestination: String = Screen.SharedNavGraph.route
 ) {
     val navController = rememberNavController()
     MainAppNavGraph(
@@ -27,18 +24,16 @@ fun MainApp(
 @Composable
 fun MainAppNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.RoleSelectionScreen.route
+    startDestination: String = Screen.SharedNavGraph.route
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        // Role Selection Screen - user selects role (Admin / Staff / Assistant)
-        composable(Screen.RoleSelectionScreen.route) {
-            val sessionViewModel: UserSessionViewModel = koinViewModel()
-            RoleSelectionScreen(
-                navController = navController,
-                sessionViewModel = sessionViewModel
+        // Shared Navigation Graph - contains Splash, Login, Role Selection
+        composable(Screen.SharedNavGraph.route) {
+            SharedNavGraph(
+                parentNavController = navController
             )
         }
 

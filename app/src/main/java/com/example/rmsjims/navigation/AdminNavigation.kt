@@ -13,8 +13,10 @@ import com.example.rmsjims.ui.screens.assistant.TicketScreen
 import com.example.rmsjims.viewmodel.UserSessionViewModel
 import org.koin.androidx.compose.koinViewModel
 import com.example.rmsjims.ui.screens.admin.AdminDashboardScreen
-import com.example.rmsjims.ui.screens.admin.EquipmentAssignmentScreen
+import com.example.rmsjims.ui.screens.admin.AdminBookingManagementScreen
+import com.example.rmsjims.ui.screens.admin.EquipmentManagementScreen
 import com.example.rmsjims.ui.screens.admin.SystemSettingScreen
+import com.example.rmsjims.ui.screens.admin.ResourceManagementScreen
 import com.example.rmsjims.ui.screens.admin.UserDetailScreen
 import com.example.rmsjims.ui.screens.admin.UserManagementScreen
 import com.example.rmsjims.ui.screens.assistant.MaintenanceApprovalScreen
@@ -27,6 +29,7 @@ import com.example.rmsjims.ui.screens.assistant.RequestDetailsScreen
 import com.example.rmsjims.ui.screens.staff.HomeScreen
 import com.example.rmsjims.ui.screens.staff.EquipmentScreen
 import com.example.rmsjims.ui.screens.staff.ProfileScreen
+import com.example.rmsjims.ui.screens.assistant.NewEquipmentScreen
 
 @Composable
 fun AdminModuleApp() {
@@ -58,11 +61,17 @@ fun AdminModuleApp() {
         composable(Screen.AdminDashboardScreen.route) {
             AdminDashboardScreen(navController = navController)
         }
-        composable(Screen.EquipmentAssignmentScreen.route) {
-            EquipmentAssignmentScreen(navController = navController)
+        composable(Screen.AdminBookingsScreen.route) {
+            AdminBookingManagementScreen(navController = navController)
+        }
+        composable(Screen.EquipmentManagementScreen.route) {
+            EquipmentManagementScreen(navController = navController)
         }
         composable(Screen.SystemSettingScreen.route) {
             SystemSettingScreen(navController = navController)
+        }
+        composable(Screen.ResourceManagementScreen.route) {
+            ResourceManagementScreen(navController = navController)
         }
         composable(Screen.UserManagementScreen.route) {
             UserManagementScreen(navController = navController)
@@ -116,6 +125,10 @@ fun AdminModuleApp() {
             val sessionViewModel: UserSessionViewModel = koinViewModel()
             ProdDescScreen(navController = navController, sessionViewModel = sessionViewModel)
         }
+        composable(Screen.ProductDescriptionEditScreen.route) {
+            val sessionViewModel: UserSessionViewModel = koinViewModel()
+            ProdDescScreen(navController = navController, sessionViewModel = sessionViewModel)
+        }
         composable(Screen.ProjectInfoScreen.route) {
             ProjectInfoScreen(navController = navController)
         }
@@ -124,6 +137,9 @@ fun AdminModuleApp() {
         }
         composable(Screen.TicketScreen.route) {
             TicketScreen()
+        }
+        composable(Screen.NewEquipmentScreen.route) {
+            NewEquipmentScreen(navController = navController)
         }
     }
 }

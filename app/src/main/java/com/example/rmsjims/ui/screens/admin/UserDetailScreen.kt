@@ -19,10 +19,16 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,8 +43,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import com.example.rmsjims.R
 import com.example.rmsjims.ui.components.AppButton
+import com.example.rmsjims.ui.components.AppTextField
 import com.example.rmsjims.ui.components.CustomLabel
 import com.example.rmsjims.ui.components.CustomTopBar
 import com.example.rmsjims.ui.components.ProfileImage
@@ -86,6 +98,11 @@ fun UserDetailScreen(
         "Oscilloscope Tektronix TBS1000 - Assigned: 2024-01-08"
     )
     
+    val previouslyUsedEquipment = listOf(
+        "Camera Canon EOS R50 - Returned: 2023-12-15",
+        "Microscope Olympus BX53 - Returned: 2023-11-20"
+    )
+    
     val notes = listOf(
         "User requested additional equipment for research project",
         "Previous suspension: 2023-06-15 to 2023-07-01 - Reason: Late equipment return"
@@ -94,13 +111,62 @@ fun UserDetailScreen(
     var showSuspendDialog by remember { mutableStateOf(false) }
     var showResetPasswordDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
+    var showDeleteUserDialog by remember { mutableStateOf(false) }
+    var showChangeRoleDialog by remember { mutableStateOf(false) }
+    var showAuthInfoDialog by remember { mutableStateOf(false) }
+    var showAdminPasswordDialog by remember { mutableStateOf(false) }
+    var isUserEnabled by remember { mutableStateOf(user.status != UserStatus.DISABLED) }
+    var showMenuDropdown by remember { mutableStateOf(false) }
+    var adminPassword by remember { mutableStateOf("") }
+    var showAuthInfo by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
-            CustomTopBar(
-                title = user.name,
-                onNavigationClick = { navController.popBackStack() }
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                CustomTopBar(
+                    title = user.name,
+                    onNavigationClick = { navController.popBackStack() }
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = ResponsiveLayout.getHorizontalPadding())
+                ) {
+                    IconButton(onClick = { showMenuDropdown = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Menu",
+                            tint = onSurfaceColor
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showMenuDropdown,
+                        onDismissRequest = { showMenuDropdown = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { CustomLabel(header = "Delete User", fontSize = 14.sp, headerColor = onSurfaceColor) },
+                            onClick = {
+                                showMenuDropdown = false
+                                showDeleteUserDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { CustomLabel(header = "Reset Password", fontSize = 14.sp, headerColor = onSurfaceColor) },
+                            onClick = {
+                                showMenuDropdown = false
+                                showResetPasswordDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { CustomLabel(header = "Change Role", fontSize = 14.sp, headerColor = onSurfaceColor) },
+                            onClick = {
+                                showMenuDropdown = false
+                                showChangeRoleDialog = true
+                            }
+                        )
+                    }
+                }
+            }
         },
         containerColor = whiteColor
     ) { paddingValues ->
@@ -119,12 +185,64 @@ fun UserDetailScreen(
                 BasicInfoCard(user = user)
             }
             
-            // Assignment Overview Card
+            // Equipment Assignment Overview Section
             item {
-                AssignmentOverviewCard(
+                CustomLabel(
+                    header = "Equipment Assignment Overview",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
+                    headerColor = onSurfaceColor,
+                    modifier = Modifier.padding(
+                        start = ResponsiveLayout.getResponsivePadding(24.dp, 28.dp, 32.dp),
+                        bottom = ResponsiveLayout.getResponsivePadding(8.dp, 10.dp, 12.dp)
+                    )
+                )
+            }
+            
+            // Currently Assigned Card
+            item {
+                CurrentlyAssignedCard(
                     activeAssignments = currentlyAssignedEquipment,
+                    modifier = Modifier.padding(start = ResponsiveLayout.getResponsivePadding(24.dp, 28.dp, 32.dp))
+                )
+            }
+            
+            // Overdue Assignments Card
+            item {
+                OverdueAssignmentsCard(
                     overdueItems = overdueItems,
-                    assignmentHistory = assignmentHistory
+                    modifier = Modifier.padding(start = ResponsiveLayout.getResponsivePadding(24.dp, 28.dp, 32.dp))
+                )
+            }
+            
+            // Previously Used Card
+            item {
+                PreviouslyUsedCard(
+                    previouslyUsed = previouslyUsedEquipment,
+                    modifier = Modifier.padding(start = ResponsiveLayout.getResponsivePadding(24.dp, 28.dp, 32.dp))
+                )
+            }
+            
+            // Assignment History Card
+            item {
+                AssignmentHistoryCard(assignmentHistory = assignmentHistory)
+            }
+            
+            // Enable/Disable Toggle
+            item {
+                EnableDisableCard(
+                    isEnabled = isUserEnabled,
+                    onToggle = { isUserEnabled = !isUserEnabled }
+                )
+            }
+            
+            // User Authentication Info Card
+            item {
+                UserAuthenticationInfoCard(
+                    user = user,
+                    showAuthInfo = showAuthInfo,
+                    onTap = {
+                        showAdminPasswordDialog = true
+                    }
                 )
             }
             
@@ -132,8 +250,32 @@ fun UserDetailScreen(
             item {
                 AdminActionsCard(
                     user = user,
-                    onCallClick = { /* Handle call */ },
-                    onEmailClick = { /* Handle email */ },
+                    onCallClick = {
+                        val context = LocalContext.current
+                        // Copy phone to clipboard
+                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("Phone", user.phone)
+                        clipboard.setPrimaryClip(clip)
+                        
+                        // Open dialer app with number on keypad
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:${user.phone}")
+                        }
+                        context.startActivity(intent)
+                    },
+                    onEmailClick = {
+                        val context = LocalContext.current
+                        // Copy email to clipboard
+                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("Email", user.email)
+                        clipboard.setPrimaryClip(clip)
+                        
+                        // Open mail app with email in 'To' field
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:${user.email}")
+                        }
+                        context.startActivity(intent)
+                    },
                     onNotificationClick = { showNotificationDialog = true },
                     onSuspendClick = { showSuspendDialog = true },
                     onReinstateClick = { /* Handle reinstate */ },
@@ -185,6 +327,45 @@ fun UserDetailScreen(
                 // Handle send notification
             },
             onDismiss = { showNotificationDialog = false }
+        )
+    }
+    
+    if (showDeleteUserDialog) {
+        ConfirmationDialog(
+            title = "Delete User",
+            message = "Are you sure you want to delete ${user.name}? This action cannot be undone.",
+            confirmText = "Delete",
+            onConfirm = {
+                showDeleteUserDialog = false
+                // Handle delete user action
+            },
+            onDismiss = { showDeleteUserDialog = false }
+        )
+    }
+    
+    if (showChangeRoleDialog) {
+        ChangeRoleDialog(
+            currentRole = user.role,
+            onConfirm = { newRole ->
+                showChangeRoleDialog = false
+                // Handle change role action
+            },
+            onDismiss = { showChangeRoleDialog = false }
+        )
+    }
+    
+    if (showAdminPasswordDialog) {
+        AdminPasswordDialog(
+            onConfirm = { password ->
+                adminPassword = password
+                // In a real app, verify admin password here
+                // For now, accept any non-empty password
+                if (password.isNotEmpty()) {
+                    showAdminPasswordDialog = false
+                    showAuthInfo = true
+                }
+            },
+            onDismiss = { showAdminPasswordDialog = false }
         )
     }
 }
@@ -273,9 +454,142 @@ fun InfoRow(label: String, value: String) {
 }
 
 @Composable
-fun AssignmentOverviewCard(
+fun CurrentlyAssignedCard(
     activeAssignments: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
+        shape = RectangleShape
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
+                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
+                ),
+            verticalArrangement = Arrangement.spacedBy(pxToDp(12))
+        ) {
+            CustomLabel(
+                header = "Currently Assigned",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(16.sp, 18.sp, 20.sp),
+                headerColor = onSurfaceColor
+            )
+            
+            if (activeAssignments.isEmpty()) {
+                CustomLabel(
+                    header = "No active assignments",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                    headerColor = onSurfaceColor.copy(0.6f)
+                )
+            } else {
+                activeAssignments.forEach { equipment ->
+                    CustomLabel(
+                        header = "• $equipment",
+                        fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                        headerColor = onSurfaceColor.copy(0.7f),
+                        modifier = Modifier.padding(start = pxToDp(8))
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OverdueAssignmentsCard(
     overdueItems: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
+        shape = RectangleShape
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
+                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
+                ),
+            verticalArrangement = Arrangement.spacedBy(pxToDp(12))
+        ) {
+            CustomLabel(
+                header = "Overdue Assignments",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(16.sp, 18.sp, 20.sp),
+                headerColor = errorColor
+            )
+            
+            if (overdueItems.isEmpty()) {
+                CustomLabel(
+                    header = "No overdue assignments",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                    headerColor = onSurfaceColor.copy(0.6f)
+                )
+            } else {
+                overdueItems.forEach { item ->
+                    CustomLabel(
+                        header = "• $item",
+                        fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                        headerColor = errorColor.copy(0.8f),
+                        modifier = Modifier.padding(start = pxToDp(8))
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PreviouslyUsedCard(
+    previouslyUsed: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = primaryColor.copy(0.1f)),
+        shape = RectangleShape
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
+                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
+                ),
+            verticalArrangement = Arrangement.spacedBy(pxToDp(12))
+        ) {
+            CustomLabel(
+                header = "Previously Used",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(16.sp, 18.sp, 20.sp),
+                headerColor = primaryColor
+            )
+            
+            if (previouslyUsed.isEmpty()) {
+                CustomLabel(
+                    header = "No previous assignments",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                    headerColor = onSurfaceColor.copy(0.6f)
+                )
+            } else {
+                previouslyUsed.forEach { item ->
+                    CustomLabel(
+                        header = "• $item",
+                        fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                        headerColor = onSurfaceColor.copy(0.7f),
+                        modifier = Modifier.padding(start = pxToDp(8))
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AssignmentHistoryCard(
     assignmentHistory: List<String>
 ) {
     Card(
@@ -290,79 +604,24 @@ fun AssignmentOverviewCard(
                     horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
                     vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
                 ),
-            verticalArrangement = Arrangement.spacedBy(pxToDp(16))
+            verticalArrangement = Arrangement.spacedBy(pxToDp(12))
         ) {
             CustomLabel(
-                header = "Assignment Overview",
+                header = "Assignment History",
                 fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
                 headerColor = onSurfaceColor
             )
             
-            // Stats Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(pxToDp(12))
-            ) {
-                StatChip(
-                    label = "Active",
-                    count = activeAssignments.size,
-                    color = primaryColor
-                )
-                if (overdueItems.isNotEmpty()) {
-                    StatChip(
-                        label = "Overdue",
-                        count = overdueItems.size,
-                        color = errorColor
-                    )
-                }
-            }
-            
             Divider(thickness = pxToDp(1), color = cardColor)
             
-            // Currently Assigned Equipment
-            if (activeAssignments.isNotEmpty()) {
+            if (assignmentHistory.isEmpty()) {
                 CustomLabel(
-                    header = "Currently Assigned Equipment",
-                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
-                    headerColor = onSurfaceColor.copy(0.8f)
+                    header = "No assignment history",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                    headerColor = onSurfaceColor.copy(0.6f)
                 )
-                activeAssignments.forEach { equipment ->
-                    CustomLabel(
-                        header = "• $equipment",
-                        fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
-                        headerColor = onSurfaceColor.copy(0.7f),
-                        modifier = Modifier.padding(start = pxToDp(8))
-                    )
-                }
-            }
-            
-            // Overdue Items
-            if (overdueItems.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(pxToDp(12)))
-                CustomLabel(
-                    header = "Overdue Items",
-                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
-                    headerColor = errorColor
-                )
-                overdueItems.forEach { item ->
-                    CustomLabel(
-                        header = "• $item",
-                        fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
-                        headerColor = errorColor.copy(0.8f),
-                        modifier = Modifier.padding(start = pxToDp(8))
-                    )
-                }
-            }
-            
-            // Assignment History Preview
-            if (assignmentHistory.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(pxToDp(12)))
-                CustomLabel(
-                    header = "Assignment History (Preview)",
-                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
-                    headerColor = onSurfaceColor.copy(0.8f)
-                )
-                assignmentHistory.take(3).forEach { history ->
+            } else {
+                assignmentHistory.forEach { history ->
                     CustomLabel(
                         header = "• $history",
                         fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
@@ -373,6 +632,199 @@ fun AssignmentOverviewCard(
             }
         }
     }
+}
+
+@Composable
+fun EnableDisableCard(
+    isEnabled: Boolean,
+    onToggle: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
+        shape = RectangleShape
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
+                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
+                ),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CustomLabel(
+                header = if (isEnabled) "Enable User" else "Disable User",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(16.sp, 18.sp, 20.sp),
+                headerColor = onSurfaceColor
+            )
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = { onToggle() }
+            )
+        }
+    }
+}
+
+@Composable
+fun UserAuthenticationInfoCard(
+    user: User,
+    showAuthInfo: Boolean,
+    onTap: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onTap() },
+        colors = CardDefaults.cardColors(containerColor = onSurfaceVariant),
+        shape = RectangleShape
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp),
+                    vertical = ResponsiveLayout.getResponsivePadding(16.dp, 20.dp, 24.dp)
+                ),
+            verticalArrangement = Arrangement.spacedBy(pxToDp(12))
+        ) {
+            CustomLabel(
+                header = "User Authentication Info",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
+                headerColor = onSurfaceColor
+            )
+            
+            Divider(thickness = pxToDp(1), color = cardColor)
+            
+            if (showAuthInfo) {
+                InfoRow(label = "Email", value = user.email)
+                InfoRow(label = "Password", value = "••••••••") // In real app, show actual password
+            } else {
+                CustomLabel(
+                    header = "Tap to view authentication information (Admin password required)",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                    headerColor = onSurfaceColor.copy(0.6f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AdminPasswordDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            CustomLabel(
+                header = "Enter Admin Password",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
+                headerColor = onSurfaceColor
+            )
+        },
+        text = {
+            Column {
+                CustomLabel(
+                    header = "Please enter your admin dashboard password to view user authentication information.",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(12.sp, 14.sp, 16.sp),
+                    headerColor = onSurfaceColor.copy(0.8f)
+                )
+                Spacer(modifier = Modifier.height(pxToDp(12)))
+                AppTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = "Admin Password",
+                    visualTransformation = PasswordVisualTransformation()
+                )
+            }
+        },
+        confirmButton = {
+            AppButton(
+                buttonText = "Confirm",
+                onClick = { onConfirm(password) }
+            )
+        },
+        dismissButton = {
+            AppButton(
+                buttonText = "Cancel",
+                onClick = onDismiss,
+                containerColor = cardColor,
+                contentColor = onSurfaceColor
+            )
+        },
+        containerColor = whiteColor
+    )
+}
+
+@Composable
+fun ChangeRoleDialog(
+    currentRole: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedRole by remember { mutableStateOf(currentRole) }
+    val roles = listOf("Admin", "Staff", "Assistant", "Student")
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            CustomLabel(
+                header = "Change User Role",
+                fontSize = ResponsiveLayout.getResponsiveFontSize(18.sp, 20.sp, 22.sp),
+                headerColor = onSurfaceColor
+            )
+        },
+        text = {
+            Column {
+                CustomLabel(
+                    header = "Current Role: $currentRole",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                    headerColor = onSurfaceColor.copy(0.8f)
+                )
+                Spacer(modifier = Modifier.height(pxToDp(12)))
+                CustomLabel(
+                    header = "Select New Role:",
+                    fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                    headerColor = onSurfaceColor.copy(0.8f)
+                )
+                roles.forEach { role ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedRole = role }
+                            .padding(vertical = pxToDp(8)),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CustomLabel(
+                            header = role,
+                            fontSize = ResponsiveLayout.getResponsiveFontSize(14.sp, 16.sp, 18.sp),
+                            headerColor = if (selectedRole == role) primaryColor else onSurfaceColor
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            AppButton(
+                buttonText = "Change",
+                onClick = { onConfirm(selectedRole) }
+            )
+        },
+        dismissButton = {
+            AppButton(
+                buttonText = "Cancel",
+                onClick = onDismiss,
+                containerColor = cardColor,
+                contentColor = onSurfaceColor
+            )
+        },
+        containerColor = whiteColor
+    )
 }
 
 @Composable
@@ -408,8 +860,8 @@ fun StatChip(label: String, count: Int, color: Color) {
 @Composable
 fun AdminActionsCard(
     user: User,
-    onCallClick: () -> Unit,
-    onEmailClick: () -> Unit,
+    onCallClick: @Composable () -> Unit,
+    onEmailClick: @Composable () -> Unit,
     onNotificationClick: () -> Unit,
     onSuspendClick: () -> Unit,
     onReinstateClick: () -> Unit,
@@ -446,12 +898,12 @@ fun AdminActionsCard(
             ) {
                 AppButton(
                     buttonText = "Call User",
-                    onClick = onCallClick,
+                    onClick = onCallClick as () -> Unit,
                     modifier = Modifier.weight(1f)
                 )
                 AppButton(
                     buttonText = "Email User",
-                    onClick = onEmailClick,
+                    onClick = onEmailClick as () -> Unit,
                     modifier = Modifier.weight(1f)
                 )
             }
